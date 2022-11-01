@@ -139,6 +139,22 @@
 ; autosave desktop
 (desktop-save-mode 1)
 
+;;; show line numbers in prog mode:
+(defun my-display-numbers-hook ()
+  (display-line-numbers-mode t)
+  )
+(add-hook 'prog-mode-hook 'my-display-numbers-hook)
+
+;;; magit
+(add-to-list 'load-path "~/.emacs.d/site-lisp/magit/lisp")
+(require 'magit)
+(with-eval-after-load 'info
+	(info-initialize)
+	(add-to-list 'Info-directory-list "~/.emacs.d/site-lisp/magit/Documentation/")
+	)
+
+(add-hook 'magit-mode-hook (lambda () (company-mode -1)))
+
 ;;; programming part
 ;;; shortkeys:
 (global-set-key (kbd "C-c c")        'comment-region)
