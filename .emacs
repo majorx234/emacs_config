@@ -19,7 +19,7 @@
  '(flycheck-googlelint-verbose "3")
  '(inhibit-startup-screen t)
  '(package-selected-packages
-	 '(which-key ggtags bash-completion yasnippet-snippets flycheck-irony irony haskell-mode auto-complete-c-headers ac-c-headers license-snippets haskell-snippets rainbow-delimiters use-package flymake-cursor smartparens google-c-style flycheck-google-cpplint flymake iedit astyle)))
+	 '(magit ccls flycheck-rtags company-rtags cmake-mode company-c-headers sr-speedbar dap-mode toml-mode rust-playground rustic eglot cargo cargo-mode flycheck-rust rust-mode js2-mode ecb projectile web-mode elpy flycheck-clang-tidy clang-format which-key ggtags bash-completion yasnippet-snippets flycheck-irony irony haskell-mode auto-complete-c-headers ac-c-headers license-snippets haskell-snippets rainbow-delimiters use-package flymake-cursor smartparens google-c-style flycheck-google-cpplint flymake iedit astyle)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -160,30 +160,7 @@
 (global-set-key (kbd "C-c c")        'comment-region)
 (global-set-key (kbd "C-c C-u c")    'uncomment-region)
 
-;;; smart parens:
-(require 'smartparens-config)
-
-;; tags for code navigation
-(use-package ggtags
-:ensure t
-:config
-(add-hook 'c-mode-common-hook
-(lambda ()
-(when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
-(ggtags-mode 1))))
-)
-
 ;;; c/c++ part
-;;cmake
-;;cmake,make support (highlighting)
-;; Add this code to your .emacs file to use the mode:
-;;
-
-(require 'cmake-mode)
-(setq auto-mode-alist
-    (append '(("CMakeLists\\.txt\\'" . cmake-mode)
-              ("\\.cmake\\'" . cmake-mode))
-            auto-mode-alist))
 
 (setq-default c-basic-offset 2 c-default-style "linux")
 (setq-default tab-width 2 indent-tabs-mode t)
@@ -217,6 +194,56 @@
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
+(use-package lsp-mode
+  :ensure
+  :commands lsp
+;;	:hook (prog-mode . lsp)
+	:custom
+  ;; what to use when checking on-save. "check" is default, I prefer clippy
+  (lsp-rust-analyzer-cargo-watch-command "clippy")
+  (lsp-eldoc-render-all t)
+  (lsp-idle-delay 0.6)
+  (lsp-rust-analyzer-server-display-inlay-hints t)
+  :config
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+
+(defun dotfiles--lsp-deferred-if-supported ()
+  "Run `lsp-deferred' if it's a supported mode."
+  (unless (derived-mode-p 'emacs-lisp-mode)
+    (lsp-deferred)))
+
+(add-hook 'prog-mode-hook #'dotfiles--lsp-deferred-if-supported)
+
+(use-package lsp-ui
+  :ensure
+  :commands lsp-ui-mode
+  :custom
+  (lsp-ui-peek-always-show t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-doc-enable nil))
+
+;; ccls
+(use-package ccls
+  :after projectile
+;;  :ensure-system-package ccls
+  :custom
+  (ccls-args nil)
+  (ccls-executable (executable-find "ccls"))
+  (projectile-project-root-files-top-down-recurring
+   (append '("compile_commands.json" ".ccls")
+           projectile-project-root-files-top-down-recurring))
+  :config (push ".ccls-cache" projectile-globally-ignored-directories))
+
+(add-hook 'c++-mode-hook
+          (lambda () (setq flycheck-clang-language-standard "c++11")))
+
+;; flycheck;
+(require 'flycheck)
+(use-package flycheck
+  :ensure t
+;;  :init (global-flycheck-mode)
+)
+
 ;; flycheck
 (eval-after-load 'flycheck
   '(progn
@@ -225,9 +252,72 @@
      ;; In default, syntax checked by Clang and Cppcheck.
      (flycheck-add-next-checker 'c/c++-clang
                                 'c/c++-googlelint 'append)))
+
 ;; /flycheck/: syntax checker
-(add-hook 'c++-mode-hook 'flycheck-mode)
-(add-hook 'c-mode-hook 'flycheck-mode)
+;(add-hook 'c++-mode-hook 'flycheck-mode)
+;(add-hook 'c-mode-hook 'flycheck-mode)
+
+
+;; flycheck: syntax checker rtags:
+;; Optional explicitly select the RTags Flycheck checker for c or c++ major mode.
+;; Turn off Flycheck highlighting, use the RTags one.
+;; Turn off automatic Flycheck syntax checking rtags does this manually.
+;(require 'flycheck-rtags)
+;(defun my-flycheck-rtags-setup ()
+;  "Configure flycheck-rtags for better experience."
+;  (flycheck-select-checker 'rtags)
+;  (setq-local flycheck-check-syntax-automatically nil)
+;  (setq-local flycheck-highlighting-mode nil))
+;(add-hook 'c-mode-hook #'my-flycheck-rtags-setup)
+;(add-hook 'c++-mode-hook #'my-flycheck-rtags-setup)
+
+;; auto-completion and code snippets
+
+(use-package yasnippet
+  :ensure
+  :config
+  (yas-reload-all)
+  (add-hook 'prog-mode-hook 'yas-minor-mode)
+  (add-hook 'text-mode-hook 'yas-minor-mode))
+
+(use-package company
+  :ensure
+  :bind
+  (:map company-active-map
+              ("C-n". company-select-next)
+              ("C-p". company-select-previous)
+              ("M-<". company-select-first)
+              ("M->". company-select-last))
+  (:map company-mode-map
+        ("<tab>". tab-indent-or-complete)
+        ("TAB". tab-indent-or-complete)))
+
+(defun company-yasnippet-or-completion ()
+  (interactive)
+  (or (do-yas-expand)
+      (company-complete-common)))
+
+(defun check-expansion ()
+  (save-excursion
+    (if (looking-at "\\_>") t
+      (backward-char 1)
+      (if (looking-at "\\.") t
+        (backward-char 1)
+        (if (looking-at "::") t nil)))))
+
+(defun do-yas-expand ()
+  (let ((yas/fallback-behavior 'return-nil))
+    (yas/expand)))
+
+(defun tab-indent-or-complete ()
+  (interactive)
+  (if (minibufferp)
+      (minibuffer-complete)
+    (if (or (not yas/minor-mode)
+            (null (do-yas-expand)))
+        (if (check-expansion)
+            (company-complete-common)
+          (indent-for-tab-command)))))
 
 ;;; cpplint
 
@@ -236,11 +326,46 @@
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
-;start auto-complete with emacs
-(require 'auto-complete)
-; do default config for auto-complete
-(require 'auto-complete-config)
-(ac-config-default)
+;;source code navigation:
+(require 'ggtags)
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
+              (ggtags-mode 1))))
+
+(define-key ggtags-mode-map (kbd "C-c g s") 'ggtags-find-other-symbol)
+(define-key ggtags-mode-map (kbd "C-c g h") 'ggtags-view-tag-history)
+(define-key ggtags-mode-map (kbd "C-c g r") 'ggtags-find-reference)
+(define-key ggtags-mode-map (kbd "C-c g f") 'ggtags-find-file)
+(define-key ggtags-mode-map (kbd "C-c g c") 'ggtags-create-tags)
+(define-key ggtags-mode-map (kbd "C-c g u") 'ggtags-update-tags)
+
+(define-key ggtags-mode-map (kbd "M-,") 'pop-tag-mark)
+(setq-local imenu-create-index-function #'ggtags-build-imenu-index)
+(setq speedbar-show-unknown-files t)
+
+(require 'company)
+(add-hook 'after-init-hook 'global-company-mode)
+
+(require 'cc-mode)
+(setq company-backends (delete 'company-semantic company-backends))
+(define-key c-mode-map  [(tab)] 'company-complete)
+(define-key c++-mode-map  [(tab)] 'company-complete)
+
+(require 'company-c-headers)
+(add-to-list 'company-backends 'company-c-headers)
+(add-to-list 'company-c-headers-path-system "/usr/include/c++/10.2.0/")
+
+; CEDET Stuff
+(require 'cc-mode)
+(require 'semantic)
+
+(global-semanticdb-minor-mode 1)
+(global-semantic-idle-scheduler-mode 1)
+
+(semantic-mode 1)
+(semantic-add-system-include "/usr/include/boost" 'c++-mode)
+(semantic-add-system-include "/usr/include")
 ; start yasnippet with emacs
 (require 'yasnippet)
 ;;(yas-global-mode 1)
@@ -248,36 +373,52 @@
 (add-hook 'prog-mode-hook #'yas-minor-mode)
 (add-hook 'cmake-mode #'yas-minor-mode)
 
-; let's define a function which initializes auto-complete-c-headers and gets called for c/c++ hooks
-(defun my:ac-c-header-init ()
-  (require 'auto-complete-c-headers)
-  (add-to-list 'ac-sources 'ac-source-c-headers)
- ; (add-to-list 'achead:include-directories '"/home/major/c_zeuch/cpp11/lambdatest")
-  (setq achead:include-directories
-      (append '( "/usr/include/c++/10.2.0"
-                 "/usr/include/c++/10.2.0/x86_64-pc-linux-gnu"
-                 "/usr/include/c++/10.2.0/backward"
-                 "/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/include"
-                 "/usr/local/include"
-                 "/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/include-fixed"
-                 "/usr/include")
-    achead:include-directories))
-)
-; now let's call this function from c/c++ hooks
-(add-hook 'c++-mode-hook 'my:ac-c-header-init)
-(add-hook 'c-mode-hook 'my:ac-c-header-init)
+(setq
+ ;; use gdb-many-windows by default
+ gdb-many-windows t
 
-;;; CEDET stuff (semantic completion)
-;;; turn on Semantic
-(semantic-mode 1)
-;; let's define a function which adds semantic as a suggestion backend to auto complete
-;; and hook this function to c-mode-common-hook 
-;; ;connect semantic to autocpmplete
-(defun my:add-semantic-to-autocomplete() 
-  (add-to-list 'ac-sources 'ac-source-semantic)
-)
-(add-hook 'c-mode-common-hook 'my:add-semantic-to-autocomplete)
-; needs to save results of its parsing
+ ;; Non-nil means display source file containing the main routine at startup
+ gdb-show-main t
+ )
+
+;;cmake
+;;cmake,make support (highlighting)
+;; Add this code to your .emacs file to use the mode:
+(require 'cmake-mode)
+(use-package cmake-mode
+  :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
+(use-package cmake-font-lock
+  :after (cmake-mode)
+  :hook (cmake-mode . cmake-font-lock-activate))
+
+(require 'rtags) ;; optional, must have rtags installed
+(require 'cmake-ide)
+(use-package cmake-ide
+  :after projectile
+  :hook (c++-mode . my/cmake-ide-find-project)
+  :preface
+  (defun my/cmake-ide-find-project ()
+    "Finds the directory of the project for cmake-ide."
+    (with-eval-after-load 'projectile
+      (setq cmake-ide-project-dir (projectile-project-root))
+      (setq cmake-ide-build-dir (concat cmake-ide-project-dir "build")))
+    (setq cmake-ide-compile-command 
+            (concat "cd " cmake-ide-build-dir " && cmake .. && make"))
+    (cmake-ide-load-db))
+
+  (defun my/switch-to-compilation-window ()
+    "Switches to the *compilation* buffer after compilation."
+    (other-window 1))
+  :bind ([remap comment-region] . cmake-ide-compile)
+  :init (cmake-ide-setup)
+  :config (advice-add 'cmake-ide-compile :after #'my/switch-to-compilation-window))
+
+(setq cmake-ide-flags-c++ (append '("-std=c++14")))
+
+(setq rtags-autostart-diagnostics t)
+(rtags-diagnostics)
+(setq rtags-completions-enabled t)
+(rtags-enable-standard-keybindings)
 
 ;; haskell stuff
 (require 'haskell-mode)
