@@ -274,9 +274,6 @@
 (add-hook 'c-mode-common-hook 'my:add-semantic-to-autocomplete)
 ; needs to save results of its parsing
 
-;; web javascript
-(add-hook 'js-mode-hook #'smartparens-mode)
-
 ;; haskell stuff
 (require 'haskell-mode)
 (use-package haskell-mode
@@ -362,6 +359,39 @@
            ;; uncomment if lldb-mi is not in PATH
            ;; :lldbmipath "path/to/lldb-mi"
      ))))
+
+;;; web stuff
+(require 'web-mode) 
+(add-hook 'web-mode-hook 'autopair-mode)
+(add-to-list 'auto-mode-alist '("\\.php$" . web-mode))
+ 
+(windmove-default-keybindings)
+
+;;; smart parens:
+(require 'smartparens-config)
+;; web javascript
+(add-hook 'js-mode-hook #'smartparens-mode)
+
+;; javascript
+(require 'js2-mode)
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+;; Better imenu
+(add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
+
+;;js2-mode steals TAB, let's steal it back for yasnippet
+(defun js2-tab-properly ()
+  (interactive)
+  (let ((yas/fallback-behavior 'return-nil))
+    (unless (yas/expand)
+      (indent-for-tab-command)
+      (if (looking-back "^\s*")
+          (back-to-indentation)))))
+(eval-after-load 'js2-mode
+  '(define-key js2-mode-map (kbd "TAB") 'js2-tab-properly))
+
+(add-hook 'js2-mode-hook 'autopair-mode)
+(set-cursor-color "#aaaaaa")
 
 ;;; bash completion for shell mode
 ;;;not work with zsh
