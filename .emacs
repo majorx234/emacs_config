@@ -246,6 +246,7 @@
 ;;(yas-global-mode 1)
 (yas-reload-all)
 (add-hook 'prog-mode-hook #'yas-minor-mode)
+(add-hook 'cmake-mode #'yas-minor-mode)
 
 ; let's define a function which initializes auto-complete-c-headers and gets called for c/c++ hooks
 (defun my:ac-c-header-init ()
@@ -402,7 +403,6 @@
 (require 'bash-completion)
 (bash-completion-setup)
 
-
 ;;; Fixmee
 (require 'fixmee)
 (require 'button-lock)
@@ -414,11 +414,17 @@
 	(message "mypath: %s\n" name)
 	)
 
+(defun open_my_cproject (directory)
+	(setq projectdir (concat "-I" directory "/include"))
+	(mypath projectdir)
+  ((nil . ((company-clang-arguments . projectdir))))
+  )
+
 (defun choose-project-directory (directory)
   "Open C/C++ Project"
   (interactive (list (read-directory-name "Project directory? "
                                           choose-directory-default-directory)))
-	(mypath directory)
+	(open_my_cproject directory)
 )
 
 (defvar choose-directory-default-directory "/home/ros/c_zeuch"
@@ -426,3 +432,4 @@
 
 (global-set-key (kbd "C-c C-o") 'choose-project-directory)
 
+(put 'scroll-left 'disabled nil)
