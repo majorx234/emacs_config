@@ -398,6 +398,41 @@
 (add-hook 'js2-mode-hook 'autopair-mode)
 (set-cursor-color "#aaaaaa")
 
+;flex-pair
+(require 'flex-autopair)
+(flex-autopair-mode 1)
+
+;;; flx-ido
+(require 'flx-ido)
+(ido-mode 1)
+(ido-everywhere 1)
+(flx-ido-mode 1)
+;; disable ido faces to see flx highlights.
+(setq ido-enable-flex-matching t)
+(setq ido-use-faces nil)
+
+(require 'web-mode) 
+(add-hook 'web-mode-hook 'autopair-mode)
+(add-to-list 'auto-mode-alist '("\\.php$" . web-mode))
+
+
+(require 'yaml-mode)
+(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+(add-hook 'yaml-mode-hook
+  '(lambda ()
+     (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
+
+
+;;; python stuff
+;; Use flycheck-pyflakes for python. Seems to work a little better.
+(require 'flycheck-pyflakes)
+
+;; elpy
+(elpy-enable)
+(define-key yas-minor-mode-map (kbd "C-c k") 'yas-expand)
+(define-key global-map (kbd "C-c o") 'iedit-mode)
+
+
 ;;; bash completion for shell mode
 ;;;not work with zsh
 (require 'bash-completion)
