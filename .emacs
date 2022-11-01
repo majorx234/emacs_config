@@ -44,8 +44,10 @@
  '(rainbow-delimiters-depth-5-face ((t (:foreground "blue" :height 1.1))))
  '(rainbow-delimiters-depth-6-face ((t (:foreground "violet" :height 1.0))))
  '(rainbow-delimiters-depth-7-face ((t (:foreground "purple" :height 1.0))))
- '(rainbow-delimiters-depth-8-face ((t (:foreground "black" :height 0.9))))
+ '(rainbow-delimiters-depth-8-face ((t (:foreground "grey" :height 0.9))))
  '(rainbow-delimiters-unmatched-face ((t (:background "cyan" :height 0.8))))
+ '(rustic-compilation-column ((t (:inherit compilation-column-number))))
+ '(rustic-compilation-line ((t (:foreground "LimeGreen"))))
  '(tool-bar ((((type x w32 mac) (class color)) (:background "midnight blue" :foreground "wheat" :box (:line-width 1 :style released-button))))))
 
 ;;; rainbow-delimitters
