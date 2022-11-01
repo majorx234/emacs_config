@@ -399,7 +399,13 @@
 (bash-completion-setup)
 
 
-;;; examples of own emacs things (nor used yet)
+;;; Fixmee
+(require 'fixmee)
+(require 'button-lock)
+
+(global-fixmee-mode 1)
+
+;;; examples of own emacs things (not used yet)
 (defun mypath (name)
 	(message "mypath: %s\n" name)
 	)
