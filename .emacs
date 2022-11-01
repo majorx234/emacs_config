@@ -206,6 +206,9 @@
                            (get-buffer-create "*Astyle Errors*") t))
 (global-set-key (kbd "C-c C-y") 'astyle-this-buffer)
 
+;; clang-format
+(require 'clang-format)
+(global-set-key [C-M-tab] 'clang-format-region)
 
 ;; flycheck
 (eval-after-load 'flycheck
