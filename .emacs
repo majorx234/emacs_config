@@ -51,7 +51,6 @@
  '(tool-bar ((((type x w32 mac) (class color)) (:background "midnight blue" :foreground "wheat" :box (:line-width 1 :style released-button))))))
 
 ;;; rainbow-delimitters
-
 (require 'use-package)
 
 ;; rainbow brackets
@@ -151,8 +150,10 @@
 (with-eval-after-load 'info
 	(info-initialize)
 	(add-to-list 'Info-directory-list "~/.emacs.d/site-lisp/magit/Documentation/")
-	)
+)
 
+(global-set-key (kbd "C-c m s") 'magit-status)
+(global-set-key (kbd "C-c m l") 'magit-log)
 (add-hook 'magit-mode-hook (lambda () (company-mode -1)))
 
 ;;; programming part
