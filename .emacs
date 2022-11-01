@@ -98,8 +98,8 @@
 (set-face-foreground 'default "white")
 (set-face-background 'default "black"))
 (if window-system
-(faces_x)
-(faces_nox))
+    (faces_x)
+    (faces_nox))
 
 ;; Make the mouse wheel scroll Emacs
 (mouse-wheel-mode t)
