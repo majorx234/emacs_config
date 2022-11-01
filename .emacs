@@ -210,6 +210,10 @@
 (require 'clang-format)
 (global-set-key [C-M-tab] 'clang-format-region)
 
+;;; project managment
+(require 'projectile)
+(projectile-global-mode)
+
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
