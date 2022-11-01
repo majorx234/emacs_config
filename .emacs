@@ -210,6 +210,9 @@
 (require 'clang-format)
 (global-set-key [C-M-tab] 'clang-format-region)
 
+(projectile-mode +1)
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+
 ;; flycheck
 (eval-after-load 'flycheck
   '(progn
