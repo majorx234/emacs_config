@@ -19,7 +19,7 @@
  '(flycheck-googlelint-verbose "3")
  '(inhibit-startup-screen t)
  '(package-selected-packages
-	 '(magit ccls flycheck-rtags company-rtags cmake-mode company-c-headers sr-speedbar dap-mode toml-mode rust-playground rustic eglot cargo cargo-mode flycheck-rust rust-mode js2-mode ecb projectile web-mode elpy flycheck-clang-tidy clang-format which-key ggtags bash-completion yasnippet-snippets flycheck-irony irony haskell-mode auto-complete-c-headers ac-c-headers license-snippets haskell-snippets rainbow-delimiters use-package flymake-cursor smartparens google-c-style flycheck-google-cpplint flymake iedit astyle)))
+	 '(zenburn-theme underwater-theme melancholy-theme magit ccls flycheck-rtags company-rtags cmake-mode company-c-headers sr-speedbar dap-mode toml-mode rust-playground rustic eglot cargo cargo-mode flycheck-rust rust-mode js2-mode ecb projectile web-mode elpy flycheck-clang-tidy clang-format which-key ggtags bash-completion yasnippet-snippets flycheck-irony irony haskell-mode auto-complete-c-headers ac-c-headers license-snippets haskell-snippets rainbow-delimiters use-package flymake-cursor smartparens google-c-style flycheck-google-cpplint flymake iedit astyle)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -137,6 +137,11 @@
 
 ; autosave desktop
 (desktop-save-mode 1)
+
+;;; melancholy theme
+(use-package zenburn-theme
+  :ensure t	)
+(load-theme 'zenburn t)
 
 ;;; show line numbers in prog mode:
 (defun my-display-numbers-hook ()
@@ -453,7 +458,9 @@
               ("C-c C-c s" . lsp-rust-analyzer-status)
               ("C-c C-c e" . lsp-rust-analyzer-expand-macro)
               ("C-c C-c d" . dap-hydra)
-              ("C-c C-c h" . lsp-ui-doc-glance))
+              ("C-c C-c h" . lsp-ui-doc-glance)
+              ("C-c C-c d" . xref-find-definitions))
+
   :config
   ;; uncomment for less flashiness
   ;; (setq lsp-eldoc-hook nil)
