@@ -32,7 +32,8 @@
  '(font-lock-function-name-face ((t (:foreground "gold"))))
  '(font-lock-keyword-face ((t (:foreground "springgreen"))))
  '(font-lock-string-face ((t (:foreground "cyan"))))
- '(font-lock-type-face ((t (:foreground "brightblue"))))
+ ;; brightblue not working in older emacs versions (#5c5cff is hex color value)
+ '(font-lock-type-face ((t (:foreground "#5c5cff"))))
  '(font-lock-variable-name-face ((t (:foreground "Coral"))))
  '(menu ((((type x-toolkit)) (:background "light slate gray" :foreground "wheat" :box (:line-width 2 :color "grey75" :style released-button)))))
  '(mode-line ((t (:foreground "black" :background "light slate gray"))))
@@ -664,3 +665,35 @@
 (global-set-key (kbd "C-c C-o") 'choose-project-directory)
 
 (put 'scroll-left 'disabled nil)
+
+;;; Markdown
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown"))
+
+;; autoload
+(autoload 'markdown-mode "markdown-mode"
+   "Major mode for editing Markdown files" t)
+(add-to-list 'auto-mode-alist
+             '("\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\)\\'" . markdown-mode))
+
+(autoload 'gfm-mode "markdown-mode"
+   "Major mode for editing GitHub Flavored Markdown files" t)
+(add-to-list 'auto-mode-alist '("README\\.md\\'" . gfm-mode))
+
+;;; org mode
+
+(global-set-key (kbd "C-c l") #'org-store-link)
+(global-set-key (kbd "C-c a") #'org-agenda)
+(global-set-key (kbd "C-c c") #'org-capture)
+
+;; org fix for yasnippet:
+(add-hook 'org-mode-hook
+          (lambda ()
+            (setq-local yas/trigger-key [tab])
+            (define-key yas/keymap [tab] 'yas/next-field-or-maybe-expand)))
+;; org agende files
+(setq org-agenda-files (quote
+   ("~/c_zeuch/rust/org/notes/rust_development.org"
+    "~/c_zeuch/rust/org/notes/")))
