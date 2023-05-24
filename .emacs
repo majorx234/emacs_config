@@ -1,13 +1,22 @@
 ; start package.el with emacs
 (require 'package)
 ; initialize package.el
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
+;; Bootstrap 'use-package'
+(eval-after-load 'gnutls
+  '(add-to-list 'gnutls-trustfiles "/etc/ssl/cert.pem"))
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-(require 'package)
-(dolist (source '(("melpa" . "https://melpa.org/packages/")
-                  ("elpa" . "http://tromey.com/elpa/")))
-  (add-to-list 'package-archives source t))
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(eval-when-compile
+  (require 'use-package))
+(require 'bind-key)
+(setq use-package-always-ensure t)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -35,6 +44,7 @@
  ;; brightblue not working in older emacs versions (#5c5cff is hex color value)
  '(font-lock-type-face ((t (:foreground "#5c5cff"))))
  '(font-lock-variable-name-face ((t (:foreground "Coral"))))
+ '(line-number ((t (:inherit default :background "black" :foreground "grey"))))
  '(menu ((((type x-toolkit)) (:background "light slate gray" :foreground "wheat" :box (:line-width 2 :color "grey75" :style released-button)))))
  '(mode-line ((t (:foreground "black" :background "light slate gray"))))
  '(modeline ((t (:foreground "blue" :background "white"))))
@@ -147,6 +157,7 @@
 ;;; show line numbers in prog mode:
 (defun my-display-numbers-hook ()
   (display-line-numbers-mode t)
+	(setq display-line-numbers 'relative)
   )
 (add-hook 'prog-mode-hook 'my-display-numbers-hook)
 
@@ -549,8 +560,8 @@
 (set-cursor-color "#aaaaaa")
 
 ;flex-pair
-(require 'flex-autopair)
-(flex-autopair-mode 1)
+;(require 'flex-autopair)
+;(flex-autopair-mode 1)
 
 ;;; flx-ido
 (require 'flx-ido)
@@ -697,3 +708,6 @@
 (setq org-agenda-files (quote
    ("~/c_zeuch/rust/org/notes/rust_development.org"
     "~/c_zeuch/rust/org/notes/")))
+
+;;; notmuch email
+(autoload 'notmuch "notmuch" "Notmuch mail" t)
