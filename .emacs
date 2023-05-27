@@ -299,6 +299,8 @@
   (add-hook 'text-mode-hook 'yas-minor-mode))
 
 (use-package company
+	:after lsp-mode
+	:hook (lsp-mode . company-mode)
   :ensure
   :bind
   (:map company-active-map
@@ -306,9 +308,16 @@
               ("C-p". company-select-previous)
               ("M-<". company-select-first)
               ("M->". company-select-last))
+	(:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
   (:map company-mode-map
         ("<tab>". tab-indent-or-complete)
-        ("TAB". tab-indent-or-complete)))
+        ("TAB". tab-indent-or-complete))
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0))
+(use-package company-box
+  :hook (company-mode . company-box-mode))
 
 (defun company-yasnippet-or-completion ()
   (interactive)
