@@ -22,13 +22,15 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("4afa8f2f327994645b2a15b89f8fc950e4eb0adf35c1b35077880ccd9f63b42d" "2dc03dfb67fbcb7d9c487522c29b7582da20766c9998aaad5e5b63b5c27eec3f" default))
  '(flycheck-googlelint-filter "-whitespace,+whitespace/braces")
  '(flycheck-googlelint-linelength "120")
  '(flycheck-googlelint-root "project/src")
  '(flycheck-googlelint-verbose "3")
  '(inhibit-startup-screen t)
  '(package-selected-packages
-	 '(zenburn-theme underwater-theme melancholy-theme magit ccls flycheck-rtags company-rtags cmake-mode company-c-headers sr-speedbar dap-mode toml-mode rust-playground rustic eglot cargo cargo-mode flycheck-rust rust-mode js2-mode ecb projectile web-mode elpy flycheck-clang-tidy clang-format which-key ggtags bash-completion yasnippet-snippets flycheck-irony irony haskell-mode auto-complete-c-headers ac-c-headers license-snippets haskell-snippets rainbow-delimiters use-package flymake-cursor smartparens google-c-style flycheck-google-cpplint flymake iedit astyle)))
+   '(agda-editor-tactics py-snippets yasnippet-classic-snippets zenburn-theme underwater-theme melancholy-theme magit ccls flycheck-rtags company-rtags cmake-mode company-c-headers sr-speedbar dap-mode toml-mode rust-playground rustic eglot cargo cargo-mode flycheck-rust rust-mode js2-mode ecb projectile web-mode elpy flycheck-clang-tidy clang-format which-key ggtags bash-completion yasnippet-snippets flycheck-irony irony haskell-mode auto-complete-c-headers ac-c-headers license-snippets haskell-snippets rainbow-delimiters use-package flymake-cursor smartparens google-c-style flycheck-google-cpplint flymake iedit astyle)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -59,7 +61,8 @@
  '(rainbow-delimiters-unmatched-face ((t (:background "cyan" :height 0.8))))
  '(rustic-compilation-column ((t (:inherit compilation-column-number))))
  '(rustic-compilation-line ((t (:foreground "LimeGreen"))))
- '(tool-bar ((((type x w32 mac) (class color)) (:background "midnight blue" :foreground "wheat" :box (:line-width 1 :style released-button))))))
+ '(tool-bar ((((type x w32 mac) (class color)) (:background "midnight blue" :foreground "wheat" :box (:line-width 1 :style released-button)))))
+ '(whitespace-tab ((t (:foreground "#636363")))))
 
 ;;; rainbow-delimitters
 (require 'use-package)
@@ -151,22 +154,23 @@
 
 ;;; melancholy theme
 (use-package zenburn-theme
-  :ensure t	)
+  :ensure t)
 (load-theme 'zenburn t)
 
 ;;; show line numbers in prog mode:
 (defun my-display-numbers-hook ()
   (display-line-numbers-mode t)
-	(setq display-line-numbers 'relative)
+  (setq display-line-numbers 'relative)
   )
 (add-hook 'prog-mode-hook 'my-display-numbers-hook)
 
 ;;; magit
+(use-package magit)
 (add-to-list 'load-path "~/.emacs.d/site-lisp/magit/lisp")
 (require 'magit)
 (with-eval-after-load 'info
-	(info-initialize)
-	(add-to-list 'Info-directory-list "~/.emacs.d/site-lisp/magit/Documentation/")
+  (info-initialize)
+  (add-to-list 'Info-directory-list "~/.emacs.d/site-lisp/magit/Documentation/")
 )
 
 (global-set-key (kbd "C-c m s") 'magit-status)
@@ -181,7 +185,8 @@
 ;;; c/c++ part
 
 (setq-default c-basic-offset 2 c-default-style "linux")
-(setq-default tab-width 2 indent-tabs-mode t)
+(setq-default tab-width 2)
+(setq-default indent-tabs-mode nil)
 
 (defun set-newline-and-indent ()
   (local-set-key (kbd "RET") 'newline-and-indent))
@@ -189,6 +194,7 @@
 (add-hook 'c++-mode-hook 'set-newline-and-indent)
 
 ;start iedit (ok)
+(use-package iedit)
 (require 'iedit)
 (define-key global-map (kbd "C-c o") 'iedit-mode)
 
@@ -202,10 +208,12 @@
 (global-set-key (kbd "C-c C-y") 'astyle-this-buffer)
 
 ;; clang-format
+(use-package clang-format)
 (require 'clang-format)
 (global-set-key [C-M-tab] 'clang-format-region)
 
 ;;; project managment
+(use-package projectile)
 (require 'projectile)
 (projectile-global-mode)
 
@@ -215,15 +223,19 @@
 (use-package lsp-mode
   :ensure
   :commands lsp
-;;	:hook (prog-mode . lsp)
-	:custom
+;;  :hook (prog-mode . lsp)
+  :custom
   ;; what to use when checking on-save. "check" is default, I prefer clippy
   (lsp-rust-analyzer-cargo-watch-command "clippy")
   (lsp-eldoc-render-all t)
   (lsp-idle-delay 0.6)
   (lsp-rust-analyzer-server-display-inlay-hints t)
   :config
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  (add-hook 'js2-mode-hook 'lsp)
+  (add-hook 'php-mode 'lsp)
+  (add-hook 'css-mode 'lsp)
+  (add-hook 'web-mode 'lsp))
 
 (defun dotfiles--lsp-deferred-if-supported ()
   "Run `lsp-deferred' if it's a supported mode."
@@ -256,6 +268,7 @@
           (lambda () (setq flycheck-clang-language-standard "c++11")))
 
 ;; flycheck;
+(use-package flycheck)
 (require 'flycheck)
 (use-package flycheck
   :ensure t
@@ -263,6 +276,7 @@
 )
 
 ;; flycheck
+(use-package flycheck-google-cpplint)
 (eval-after-load 'flycheck
   '(progn
      (require 'flycheck-google-cpplint)
@@ -292,23 +306,23 @@
 ;; auto-completion and code snippets
 
 (use-package yasnippet
-  :ensure
-  :config
+  :ensure t
+  :config t
   (yas-reload-all)
   (add-hook 'prog-mode-hook 'yas-minor-mode)
   (add-hook 'text-mode-hook 'yas-minor-mode))
 
 (use-package company
-	:after lsp-mode
-	:hook (lsp-mode . company-mode)
-  :ensure
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :ensure t
   :bind
   (:map company-active-map
               ("C-n". company-select-next)
               ("C-p". company-select-previous)
               ("M-<". company-select-first)
               ("M->". company-select-last))
-	(:map lsp-mode-map
+  (:map lsp-mode-map
          ("<tab>" . company-indent-or-complete-common))
   (:map company-mode-map
         ("<tab>". tab-indent-or-complete)
@@ -316,6 +330,7 @@
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0))
+
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
@@ -347,13 +362,14 @@
           (indent-for-tab-command)))))
 
 ;;; cpplint
-
 ;start google-c-style with emacs
+(use-package google-c-style)
 (require 'google-c-style)
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
 ;;source code navigation:
+(use-package ggtags)
 (require 'ggtags)
 (add-hook 'c-mode-common-hook
           (lambda ()
@@ -379,6 +395,7 @@
 (define-key c-mode-map  [(tab)] 'company-complete)
 (define-key c++-mode-map  [(tab)] 'company-complete)
 
+(use-package company-c-headers)
 (require 'company-c-headers)
 (add-to-list 'company-backends 'company-c-headers)
 (add-to-list 'company-c-headers-path-system "/usr/include/c++/10.2.0/")
@@ -393,7 +410,9 @@
 (semantic-mode 1)
 (semantic-add-system-include "/usr/include/boost" 'c++-mode)
 (semantic-add-system-include "/usr/include")
+
 ; start yasnippet with emacs
+(use-package yasnippet)
 (require 'yasnippet)
 ;;(yas-global-mode 1)
 (yas-reload-all)
@@ -448,7 +467,6 @@
 (rtags-enable-standard-keybindings)
 
 ;; haskell stuff
-(require 'haskell-mode)
 (use-package haskell-mode
   :ensure t
   :config
@@ -456,6 +474,7 @@
             (lambda ()
               (interactive-haskell-mode)
               (flycheck-mode))))
+(require 'haskell-mode)
 
 ;;; Rust stuff
 (with-eval-after-load 'rust-mode
@@ -464,11 +483,11 @@
   )
 (add-hook 'rust-mode-hook
           (lambda () (error "Don't use rust-mode, use rustic")
-						))
+      ))
 
 (use-package rustic
-	:ensure
-	:bind (:map rustic-mode-map
+  :ensure
+  :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
               ("C-c C-c l" . flycheck-list-errors)
@@ -530,30 +549,40 @@
      (list :type "lldb"
            :request "launch"
            :name "LLDB::Run"
-	   :gdbpath "rust-lldb"
+     :gdbpath "rust-lldb"
            ;; uncomment if lldb-mi is not in PATH
            ;; :lldbmipath "path/to/lldb-mi"
      ))))
 
 ;;; web stuff
-(require 'web-mode) 
+(use-package web-mode)
+(require 'web-mode)
 (add-hook 'web-mode-hook 'autopair-mode)
 (add-to-list 'auto-mode-alist '("\\.php$" . web-mode))
- 
+
 (windmove-default-keybindings)
 
 ;;; smart parens:
-(require 'smartparens-config)
+;;(use-package smartparens-config)
+;;(require 'smartparens-config)
 ;; web javascript
 (add-hook 'js-mode-hook #'smartparens-mode)
 
+(add-hook 'js-mode-hook (lambda ()
+                          (setq js-indent-level 4
+                                indent-tabs-mode nil)))
 ;; javascript
+(use-package js2-mode)
 (require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
 ;; Better imenu
 (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
 
+;; js2 indentation
+(add-hook 'js2-mode-hook (lambda ()
+                             (setq js2-basic-offset 4
+                                   indent-tabs-mode nil)))
 ;;js2-mode steals TAB, let's steal it back for yasnippet
 (defun js2-tab-properly ()
   (interactive)
@@ -573,6 +602,7 @@
 ;(flex-autopair-mode 1)
 
 ;;; flx-ido
+(use-package flx-ido)
 (require 'flx-ido)
 (ido-mode 1)
 (ido-everywhere 1)
@@ -581,11 +611,11 @@
 (setq ido-enable-flex-matching t)
 (setq ido-use-faces nil)
 
-(require 'web-mode) 
+(require 'web-mode)
 (add-hook 'web-mode-hook 'autopair-mode)
 (add-to-list 'auto-mode-alist '("\\.php$" . web-mode))
 
-
+(use-package yaml-mode)
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 (add-hook 'yaml-mode-hook
@@ -613,7 +643,7 @@
      ("pyls.plugins.pyflakes.enabled" nil t)))
   :hook
   ((python-mode . lsp)
-	 (lsp-mode . lsp-enable-which-key-integration))
+   (lsp-mode . lsp-enable-which-key-integration))
   ;(evil-normal-state-map)
   )
 
@@ -622,7 +652,7 @@
                 lsp-ui-sideline-delay 0.5
                 lsp-ui-doc-delay 5
                 lsp-ui-sideline-ignore-duplicates t
-								lsp-ui-doc-delay 0.2
+                lsp-ui-doc-delay 0.2
                 lsp-ui-doc-position 'bottom
                 lsp-ui-doc-alignment 'frame
                 lsp-ui-doc-header nil
@@ -644,39 +674,42 @@
   :defer t
   :diminish
   :config
-	(setenv "WORKON_HOME" "/home/me/chnol3000_framework")
-	;(pyvenv-tracking-mode 1))  ; Automatically use pyvenv-workon via dir-locals (not used yet)
-	; Show python venv name in modeline
-	(setq pyvenv-mode-line-indicator '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
-	(pyvenv-mode t))
+  (setenv "WORKON_HOME" "/home/me/chnol3000_framework")
+  ;(pyvenv-tracking-mode 1))  ; Automatically use pyvenv-workon via dir-locals (not used yet)
+  ; Show python venv name in modeline
+  (setq pyvenv-mode-line-indicator '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
+  (pyvenv-mode t))
 
 ;;; bash completion for shell mode
 ;;;not work with zsh
+(use-package bash-completion)
 (require 'bash-completion)
 (bash-completion-setup)
 
 ;;; Fixmee
+(use-package fixmee)
 (require 'fixmee)
+(use-package button-lock)
 (require 'button-lock)
 
 (global-fixmee-mode 1)
 
 ;;; examples of own emacs things (not used yet)
 (defun mypath (name)
-	(message "mypath: %s\n" name)
-	)
+  (message "mypath: %s\n" name)
+)
 
 (defun open_my_cproject (directory)
-	(setq projectdir (concat "-I" directory "/include"))
-	(mypath projectdir)
+  (setq projectdir (concat "-I" directory "/include"))
+  (mypath projectdir)
   ((nil . ((company-clang-arguments . projectdir))))
-  )
+)
 
 (defun choose-project-directory (directory)
   "Open C/C++ Project"
   (interactive (list (read-directory-name "Project directory? "
                                           choose-directory-default-directory)))
-	(open_my_cproject directory)
+  (open_my_cproject directory)
 )
 
 (defvar choose-directory-default-directory "/home/ros/c_zeuch"
@@ -720,3 +753,22 @@
 
 ;;; notmuch email
 (autoload 'notmuch "notmuch" "Notmuch mail" t)
+(put 'downcase-region 'disabled nil)
+
+
+;; (OPTIONAL) Visualize tabs as a pipe character - "|"
+;; This will also show trailing characters as they are useful to spot.
+(setq whitespace-style '(face tabs tab-mark trailing))
+
+(setq whitespace-display-mappings
+  '((tab-mark 9 [124 9] [92 9]))) ; 124 is the ascii ID for '\|'
+(global-whitespace-mode) ; Enable whitespace mode everywhere
+; END TABS CONFIG
+  
+; start yasnippet with emacs
+(require 'yasnippet)
+;;(yas-global-mode 1)
+(yas-reload-all)
+(add-hook 'prog-mode-hook #'yas-minor-mode)
+(add-hook 'cmake-mode #'yas-minor-mode)
+
