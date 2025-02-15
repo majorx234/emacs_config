@@ -1,68 +1,21 @@
+(setq custom-file "~/.emacs.custom.el")
+
+(load-file custom-file)
 ; start package.el with emacs
 (require 'package)
 ; initialize package.el
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
-(package-initialize)
+;;; disable scrollbars & menu bar
+(menu-bar-mode 0)
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+(show-paren-mode 1)
 
-;; Bootstrap 'use-package'
-(eval-after-load 'gnutls
-  '(add-to-list 'gnutls-trustfiles "/etc/ssl/cert.pem"))
-(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(eval-when-compile
-  (require 'use-package))
-(require 'bind-key)
-(setq use-package-always-ensure t)
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("4afa8f2f327994645b2a15b89f8fc950e4eb0adf35c1b35077880ccd9f63b42d" "2dc03dfb67fbcb7d9c487522c29b7582da20766c9998aaad5e5b63b5c27eec3f" default))
- '(flycheck-googlelint-filter "-whitespace,+whitespace/braces")
- '(flycheck-googlelint-linelength "120")
- '(flycheck-googlelint-root "project/src")
- '(flycheck-googlelint-verbose "3")
- '(inhibit-startup-screen t)
- '(package-selected-packages
-   '(agda-editor-tactics py-snippets yasnippet-classic-snippets zenburn-theme underwater-theme melancholy-theme magit ccls flycheck-rtags company-rtags cmake-mode company-c-headers sr-speedbar dap-mode toml-mode rust-playground rustic eglot cargo cargo-mode flycheck-rust rust-mode js2-mode ecb projectile web-mode elpy flycheck-clang-tidy clang-format which-key ggtags bash-completion yasnippet-snippets flycheck-irony irony haskell-mode auto-complete-c-headers ac-c-headers license-snippets haskell-snippets rainbow-delimiters use-package flymake-cursor smartparens google-c-style flycheck-google-cpplint flymake iedit astyle)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:foreground "wheat" :background "black"))))
- '(flyspell-duplicate ((t (:foreground "Gold3" :underline t :weight normal))))
- '(flyspell-incorrect ((t (:foreground "OrangeRed" :underline t :weight normal))))
- '(font-lock-comment-face ((t (:foreground "SteelBlue1"))))
- '(font-lock-function-name-face ((t (:foreground "gold"))))
- '(font-lock-keyword-face ((t (:foreground "springgreen"))))
- '(font-lock-string-face ((t (:foreground "cyan"))))
- ;; brightblue not working in older emacs versions (#5c5cff is hex color value)
- '(font-lock-type-face ((t (:foreground "#5c5cff"))))
- '(font-lock-variable-name-face ((t (:foreground "Coral"))))
- '(line-number ((t (:inherit default :background "black" :foreground "grey"))))
- '(menu ((((type x-toolkit)) (:background "light slate gray" :foreground "wheat" :box (:line-width 2 :color "grey75" :style released-button)))))
- '(mode-line ((t (:foreground "black" :background "light slate gray"))))
- '(modeline ((t (:foreground "blue" :background "white"))))
- '(rainbow-delimiters-depth-1-face ((t (:foreground "red" :height 1.3))))
- '(rainbow-delimiters-depth-2-face ((t (:foreground "orange" :height 1.2))))
- '(rainbow-delimiters-depth-3-face ((t (:foreground "yellow" :height 1.2))))
- '(rainbow-delimiters-depth-4-face ((t (:foreground "green" :height 1.1))))
- '(rainbow-delimiters-depth-5-face ((t (:foreground "blue" :height 1.1))))
- '(rainbow-delimiters-depth-6-face ((t (:foreground "violet" :height 1.0))))
- '(rainbow-delimiters-depth-7-face ((t (:foreground "purple" :height 1.0))))
- '(rainbow-delimiters-depth-8-face ((t (:foreground "grey" :height 0.9))))
- '(rainbow-delimiters-unmatched-face ((t (:background "cyan" :height 0.8))))
- '(rustic-compilation-column ((t (:inherit compilation-column-number))))
- '(rustic-compilation-line ((t (:foreground "LimeGreen"))))
- '(tool-bar ((((type x w32 mac) (class color)) (:background "midnight blue" :foreground "wheat" :box (:line-width 1 :style released-button)))))
- '(whitespace-tab ((t (:foreground "#636363")))))
+;;; set major mode to text mode
+;(setq-default major-mode 'text-mode)
+; set eval lisp stuff
+(global-set-key (kbd "C-c j") 'eval-print-last-sexp)
 
 ;;; rainbow-delimitters
 (require 'use-package)
@@ -165,7 +118,7 @@
 (add-hook 'prog-mode-hook 'my-display-numbers-hook)
 
 ;;; magit
-(use-package magit)
+(use-package magit :ensure)
 (add-to-list 'load-path "~/.emacs.d/site-lisp/magit/lisp")
 (require 'magit)
 (with-eval-after-load 'info
@@ -182,8 +135,35 @@
 (global-set-key (kbd "C-c c")        'comment-region)
 (global-set-key (kbd "C-c C-u c")    'uncomment-region)
 
-;;; c/c++ part
+;;; Paredit
+(use-package paredit :ensure)
 
+(defun turn-on-paredit ()
+  (interactive)
+  (paredit-mode 1))
+
+(add-hook 'emacs-lisp-mode-hook  'turn-on-paredit)
+(add-hook 'clojure-mode-hook     'turn-on-paredit)
+(add-hook 'lisp-mode-hook        'turn-on-paredit)
+(add-hook 'common-lisp-mode-hook 'turn-on-paredit)
+(add-hook 'scheme-mode-hook      'turn-on-paredit)
+(add-hook 'racket-mode-hook      'turn-on-paredit)
+
+(defun rc/duplicate-line ()
+  "Duplicate current line"
+  (interactive)
+  (let ((column (- (point) (point-at-bol)))
+        (line (let ((s (thing-at-point 'line t)))
+                (if s (string-remove-suffix "\n" s) ""))))
+    (move-end-of-line 1)
+    (newline)
+    (insert line)
+    (move-beginning-of-line 1)
+    (forward-char column)))
+
+(global-set-key (kbd "C-,") 'rc/duplicate-line)
+
+;;; c/c++ part
 (setq-default c-basic-offset 2 c-default-style "linux")
 (setq-default tab-width 2)
 (setq-default indent-tabs-mode nil)
@@ -194,7 +174,7 @@
 (add-hook 'c++-mode-hook 'set-newline-and-indent)
 
 ;start iedit (ok)
-(use-package iedit)
+(use-package iedit :ensure)
 (require 'iedit)
 (define-key global-map (kbd "C-c o") 'iedit-mode)
 
@@ -208,12 +188,12 @@
 (global-set-key (kbd "C-c C-y") 'astyle-this-buffer)
 
 ;; clang-format
-(use-package clang-format)
+(use-package clang-format :ensure)
 (require 'clang-format)
 (global-set-key [C-M-tab] 'clang-format-region)
 
 ;;; project managment
-(use-package projectile)
+(use-package projectile :ensure)
 (require 'projectile)
 (projectile-global-mode)
 
@@ -254,6 +234,7 @@
 
 ;; ccls
 (use-package ccls
+  :ensure
   :after projectile
 ;;  :ensure-system-package ccls
   :custom
@@ -268,7 +249,7 @@
           (lambda () (setq flycheck-clang-language-standard "c++11")))
 
 ;; flycheck;
-(use-package flycheck)
+(use-package flycheck :ensure)
 (require 'flycheck)
 (use-package flycheck
   :ensure t
@@ -276,7 +257,7 @@
 )
 
 ;; flycheck
-(use-package flycheck-google-cpplint)
+(use-package flycheck-google-cpplint :ensure)
 (eval-after-load 'flycheck
   '(progn
      (require 'flycheck-google-cpplint)
@@ -305,9 +286,13 @@
 
 ;; auto-completion and code snippets
 
+;; Clang stuff
+(require 'clang-format)
+(setq clang-format-style "file")
+
 (use-package yasnippet
-  :ensure t
-  :config t
+  :ensure
+  :config
   (yas-reload-all)
   (add-hook 'prog-mode-hook 'yas-minor-mode)
   (add-hook 'text-mode-hook 'yas-minor-mode))
@@ -332,6 +317,7 @@
   (company-idle-delay 0.0))
 
 (use-package company-box
+  :ensure
   :hook (company-mode . company-box-mode))
 
 (defun company-yasnippet-or-completion ()
@@ -363,13 +349,13 @@
 
 ;;; cpplint
 ;start google-c-style with emacs
-(use-package google-c-style)
+(use-package google-c-style :ensure)
 (require 'google-c-style)
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
 ;;source code navigation:
-(use-package ggtags)
+(use-package ggtags :ensure)
 (require 'ggtags)
 (add-hook 'c-mode-common-hook
           (lambda ()
@@ -395,7 +381,7 @@
 (define-key c-mode-map  [(tab)] 'company-complete)
 (define-key c++-mode-map  [(tab)] 'company-complete)
 
-(use-package company-c-headers)
+(use-package company-c-headers :ensure)
 (require 'company-c-headers)
 (add-to-list 'company-backends 'company-c-headers)
 (add-to-list 'company-c-headers-path-system "/usr/include/c++/10.2.0/")
@@ -412,7 +398,7 @@
 (semantic-add-system-include "/usr/include")
 
 ; start yasnippet with emacs
-(use-package yasnippet)
+(use-package yasnippet :ensure)
 (require 'yasnippet)
 ;;(yas-global-mode 1)
 (yas-reload-all)
@@ -432,14 +418,18 @@
 ;; Add this code to your .emacs file to use the mode:
 (require 'cmake-mode)
 (use-package cmake-mode
+  :ensure
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
 (use-package cmake-font-lock
+  :ensure
   :after (cmake-mode)
   :hook (cmake-mode . cmake-font-lock-activate))
 
+(use-package rtags :ensure)
 (require 'rtags) ;; optional, must have rtags installed
-(require 'cmake-ide)
+
 (use-package cmake-ide
+  :ensure
   :after projectile
   :hook (c++-mode . my/cmake-ide-find-project)
   :preface
@@ -458,7 +448,7 @@
   :bind ([remap comment-region] . cmake-ide-compile)
   :init (cmake-ide-setup)
   :config (advice-add 'cmake-ide-compile :after #'my/switch-to-compilation-window))
-
+(require 'cmake-ide)
 (setq cmake-ide-flags-c++ (append '("-std=c++14")))
 
 (setq rtags-autostart-diagnostics t)
@@ -555,7 +545,7 @@
      ))))
 
 ;;; web stuff
-(use-package web-mode)
+(use-package web-mode :ensure)
 (require 'web-mode)
 (add-hook 'web-mode-hook 'autopair-mode)
 (add-to-list 'auto-mode-alist '("\\.php$" . web-mode))
@@ -572,7 +562,7 @@
                           (setq js-indent-level 4
                                 indent-tabs-mode nil)))
 ;; javascript
-(use-package js2-mode)
+(use-package js2-mode :ensure)
 (require 'js2-mode)
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
@@ -602,11 +592,14 @@
 ;(flex-autopair-mode 1)
 
 ;;; flx-ido
-(use-package flx-ido)
+(use-package flx-ido :ensure)
 (require 'flx-ido)
+(use-package ido-completing-read+ :ensure)
 (ido-mode 1)
 (ido-everywhere 1)
+(ido-ubiquitous-mode 1)
 (flx-ido-mode 1)
+
 ;; disable ido faces to see flx highlights.
 (setq ido-enable-flex-matching t)
 (setq ido-use-faces nil)
@@ -615,7 +608,7 @@
 (add-hook 'web-mode-hook 'autopair-mode)
 (add-to-list 'auto-mode-alist '("\\.php$" . web-mode))
 
-(use-package yaml-mode)
+(use-package yaml-mode :ensure)
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
 (add-hook 'yaml-mode-hook
@@ -626,6 +619,7 @@
 ;;; python stuff
 ;; Use flycheck-pyflakes for python. Seems to work a little better.
 (use-package lsp-mode
+  :ensure
   :config
   (setq lsp-idle-delay 0.5
         lsp-enable-symbol-highlighting t
@@ -648,16 +642,17 @@
   )
 
 (use-package lsp-ui
- :config (setq lsp-ui-sideline-show-hover t
-                lsp-ui-sideline-delay 0.5
-                lsp-ui-doc-delay 5
-                lsp-ui-sideline-ignore-duplicates t
-                lsp-ui-doc-delay 0.2
-                lsp-ui-doc-position 'bottom
-                lsp-ui-doc-alignment 'frame
-                lsp-ui-doc-header nil
-                lsp-ui-doc-include-signature t
-                lsp-ui-doc-use-childframe t)
+  :ensure
+  :config (setq lsp-ui-sideline-show-hover t
+                 lsp-ui-sideline-delay 0.5
+                 lsp-ui-doc-delay 5
+                 lsp-ui-sideline-ignore-duplicates t
+                 lsp-ui-doc-delay 0.2
+                 lsp-ui-doc-position 'bottom
+                 lsp-ui-doc-alignment 'frame
+                 lsp-ui-doc-header nil
+                 lsp-ui-doc-include-signature t
+                 lsp-ui-doc-use-childframe t)
   :commands lsp-ui-mode
 )
 
@@ -674,25 +669,46 @@
   :defer t
   :diminish
   :config
-  (setenv "WORKON_HOME" "/home/me/chnol3000_framework")
+  (setenv "WORKON_HOME" "/home/ros/c_zeuch/python/python_data_analysis")
   ;(pyvenv-tracking-mode 1))  ; Automatically use pyvenv-workon via dir-locals (not used yet)
   ; Show python venv name in modeline
   (setq pyvenv-mode-line-indicator '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
   (pyvenv-mode t))
 
+;;(require 'pyenv-mode)
+;; alternative to pyvenv
+
 ;;; bash completion for shell mode
 ;;;not work with zsh
-(use-package bash-completion)
+(use-package bash-completion :ensure)
 (require 'bash-completion)
 (bash-completion-setup)
 
+;;; Tramp mode
+(setq tramp-default-method "ssh")
+
 ;;; Fixmee
-(use-package fixmee)
+(use-package fixmee :ensure)
 (require 'fixmee)
-(use-package button-lock)
+(use-package button-lock :ensure)
 (require 'button-lock)
 
 (global-fixmee-mode 1)
+
+(use-package smex :ensure)
+(require 'smex)
+(global-set-key (kbd "M-x") 'smex)
+(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
+
+(use-package multiple-cursors :ensure)
+(require 'multiple-cursors)
+
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->")         'mc/mark-next-like-this)
+(global-set-key (kbd "C-<")         'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<")     'mc/mark-all-like-this)
+(global-set-key (kbd "C-\"")        'mc/skip-to-next-like-this)
+(global-set-key (kbd "C-:")         'mc/skip-to-previous-like-this)
 
 ;;; examples of own emacs things (not used yet)
 (defun mypath (name)
@@ -764,7 +780,7 @@
   '((tab-mark 9 [124 9] [92 9]))) ; 124 is the ascii ID for '\|'
 (global-whitespace-mode) ; Enable whitespace mode everywhere
 ; END TABS CONFIG
-  
+
 ; start yasnippet with emacs
 (require 'yasnippet)
 ;;(yas-global-mode 1)
@@ -772,3 +788,386 @@
 (add-hook 'prog-mode-hook #'yas-minor-mode)
 (add-hook 'cmake-mode #'yas-minor-mode)
 
+;;;faust stuff
+(use-package faust-mode :ensure)
+(require 'faust-mode)
+
+(use-package faustine :ensure)
+(require 'faustine)
+(add-to-list 'auto-mode-alist
+             '("\\.dsp\\'" . faustine-mode))
+
+;; rect+
+(use-package rect+ :ensure)
+(require 'rect+)
+(define-key ctl-x-r-map "C" 'rectplus-copy-rectangle)
+(define-key ctl-x-r-map "N" 'rectplus-insert-number-rectangle)
+(define-key ctl-x-r-map "\M-c" 'rectplus-create-rectangle-by-regexp)
+(define-key ctl-x-r-map "A" 'rectplus-append-rectangle-to-eol)
+(define-key ctl-x-r-map "R" 'rectplus-kill-ring-to-rectangle)
+(define-key ctl-x-r-map "K" 'rectplus-rectangle-to-kill-ring)
+(define-key ctl-x-r-map "\M-l" 'rectplus-downcase-rectangle)
+(define-key ctl-x-r-map "\M-u" 'rectplus-upcase-rectangle)
+
+;; gnuplot
+(autoload 'gnuplot-mode "gnuplot" "Gnuplot major mode" t)
+(autoload 'gnuplot-make-buffer "gnuplot" "open a buffer in gnuplot-mode" t)
+(setq auto-mode-alist (append '(("\\.gp$" . gnuplot-mode)) auto-mode-alist))
+(defun gnuplot-rectangle (&optional title style)
+  (interactive)
+  (let* ((name (make-temp-file "plot"))
+         (buf (find-file name))
+         xlabel ylabel cols header n)
+    (with-current-buffer buf
+      (setq cols (split-string (car killed-rectangle)))
+      (when (string-match-p "^[a-zA-Z]" (car cols))
+        (setq header cols)
+        (pop killed-rectangle))
+      (setq n (length header))
+      (pcase n
+        (1 (setq ylabel (nth 1 header)))
+        (2 (setq xlabel (nth 0 header)
+                 ylabel (nth 1 header)))
+        (_ (setq xlabel (nth 0 header))))
+      (yank-rectangle)
+      (save-buffer))
+
+    (setq style (or style "line"))
+    (with-temp-buffer
+      (insert "set title  '" (or title "Title") "'\n")
+      (insert "set xlabel '" (or xlabel "x-axis") "'\n")
+      (insert "set ylabel '" (or ylabel "y-axis") "'\n")
+      (insert "plot '" name "'")
+      (setq n (length cols))
+      (dotimes (i (1- n))
+        (if (> n 1) (insert " using 1:" (number-to-string (+ i 2))))
+        (if (< i n) (insert " with " style))
+        (if (> n 2)
+            (insert " title '" (nth (+ i 1) header) "'")
+          (insert " notitle"))
+        (if (> i 0) (insert ",")))
+      (if (= 1 n) (insert " using 1 with " style " notitle"))
+      (newline)
+      (gnuplot-mode)
+      (gnuplot-send-buffer-to-gnuplot))
+
+    ;; Cleanup
+    (kill-buffer buf)
+    ;; (delete-file name)
+    ))
+
+(defvar gnuplot--styles '(("line" . "line")
+                          ("bar" . "histograms")
+                          ("scatter" . "circles")
+                          ("pie" . "pie")
+                          ("half pie" . "pie_half")
+                          ("donut" . "donut")
+                          ("half donut" . "donut_half")
+                          ("spider" . "spider")
+                          ))
+(defvar gnuplot--style-prev nil)
+(defvar gnuplot--timer nil)
+(defvar gnuplot--image-dir "~/Pictures/gplot")
+
+(defvar gnuplot--flag-day nil)
+(defvar gnuplot--flag-month nil)
+(defvar gnuplot--flag-year nil)
+
+(defun gnuplot--resolve-token (a)
+  (cond ((= (length a) 4) (setq gnuplot--flag-year "%Y"))
+        ((= (length a) 3) (setq gnuplot--flag-month "%b")) ;; Jan
+        ((> (string-to-number a) 31) (setq gnuplot--flag-year "%y"))
+        ((> (string-to-number a) 12) (setq gnuplot--flag-day "%d"))
+        (t (setq gnuplot--flag-month "%m"))))
+
+(defun gnuplot--gen-datefmt (datetime &optional datetime1)
+  "Generate a gnuplot date format string or NIL if invalid."
+  (let* (;(tokens (parse-time-string (org-read-date nil nil datetime)))
+         (dash  (and (string-match-p "-" datetime) "-"))
+         (slash (and (string-match-p "/" datetime) "/"))
+         (time  (string-match-p ":" datetime))
+         (sep   (or dash slash))
+         (tokens1 (split-string datetime sep))
+         (tokens2 (split-string datetime1 sep))
+         res tokens3 out i)
+    (when (or sep time)
+      (setq gnuplot--flag-day nil
+            gnuplot--flag-month nil
+            gnuplot--flag-year nil)
+      ;; 1. Check for length
+      (setq tokens3 (mapcar 'gnuplot--resolve-token tokens1))
+      ;; (pp tokens3)
+
+      ;; 2. Use second date to disambiguate
+      (unless (and gnuplot--flag-day gnuplot--flag-month gnuplot--flag-year)
+      (pcase-let
+          ((`(,s1 ,s2 ,s3) tokens1)
+           (`(,t1 ,t2 ,t3) tokens2))
+        (if (= (length s1) 4) (push "%Y" tokens3)
+          (if (string= s1 t1) (push "%m" tokens3) (push "%d" tokens3)))
+
+        (if (= (length s1) 3) (push "%b" tokens3) ;; Jan
+          (if (string= s2 t2) (push "%m" tokens3) (push "%d" tokens3)))
+
+        (when s3
+          (if (= (length s3) 4) (push "%Y" tokens3)
+            (if (string= s3 t3) (push "%m" tokens3) (push "%d" tokens3)))
+          ))
+      ;; (pcase-let
+      ;;     ((`(,s1 ,s2) tokens1)
+      ;;      (`(,t1 ,t2) tokens2))
+      ;;   (if (= (length s1) 4) (push "%Y" tokens3))
+      ;;   (if (string= s1 t1)   (push "%m" tokens3) (push "%d" tokens3))
+      ;;   (if (string= s2 t2)   (push "%m" tokens3) (push "%d" tokens3))
+      ;;   (if (= (length s2) 4) (push "%Y" tokens3))
+      ;;   )
+      ;; (pp tokens)
+      (setq tokens3 (nreverse tokens3)))
+      (setq res (mapconcat 'identity tokens3 sep))
+      ;; (pcase-let
+      ;;     ((`(,sec ,min ,hour ,day ,mon ,year dow dst tz) tokens))
+      ;;   (setq res (apply 'concat
+      ;;                    (append (if mon  (list "%m" sep))
+      ;;                            (if day  (list "%d" sep))
+      ;;                            (if year (list year-str)))
+      ;;                    )))
+
+      ;; 3. Seek user help
+      (pcase-let
+          ((`(,s1 ,s2 ,s3) out))
+        (when (or (string= s1 s2)
+                  (string= s3 s2))
+          (if (string= s3 s2)
+              (if (string= s1 "Y")
+                  (setq out (list (mapconcat 'identity '("Y" "m" "d") sep)
+                                  (mapconcat 'identity '("Y" "d" "m") sep)
+                                  ))))
+          (if (string= s1 s2)
+              (if (string= s3 "Y")
+                  (setq out (list (mapconcat 'identity '("m" "d" "Y") sep)
+                                  (mapconcat 'identity '("d" "m" "Y") sep)
+                                  ))))
+          (pp out)
+          ))
+      )
+    res))
+
+(defun gnuplot--draw-line (style m n xlabel ylabel labelcol datetime)
+  ""
+  (let (j)
+    (insert "set xlabel '" (or xlabel "x-axis") "'\n")
+    (insert "set ylabel '" (or ylabel "y-axis") "'\n")
+    (when datetime
+      (insert "set xdata time\n")
+      (insert "set format x \"" (if (< m 10) "%d-" "") "%b-%y\"\n")
+      (insert "set timefmt \"" datetime "\"\n"))
+    (insert "plot file")
+    (setq j (if (or labelcol datetime (> n 1)) 1 0))
+    (dotimes (i (- n j))
+      (insert " using ")
+      (when (not (string= style "histograms"))
+        (insert (number-to-string
+                 (if (or labelcol (= n 1)) 0 1))
+                ":"))
+      (insert (number-to-string (+ i j 1)))
+      (if (and labelcol (not datetime)) (insert ":xtic(1)"))
+      (if (< i n) (insert " with " style))
+      (if (> n 2)
+          (insert " title columnhead")
+        (insert " notitle"))
+      (if (< i (- n j 1)) (insert ", ''")))
+    ))
+
+(defun gnuplot--draw-pie (m header labelcol datetime N &optional donut)
+  (if datetime (error "Date is not supported for piechart"))
+  (let* ((col (if labelcol "2" "1"))
+         (rows (format "%d:%d" 0 (- m 1 (if header 1 0))))
+   (fmt1 "(sprintf('%s (%05.2f%%)', stringcolumn(1), percent($2)))")
+   (fmt2 "(sprintf('%05.2f%%', percent($1)))"))
+    (if header (insert "set datafile columnheaders\n"))
+    (insert "stats file using " col " nooutput prefix 'A'\n")
+    (insert "N         = " (number-to-string N) "\n")
+    (insert "angle(x)  = x*N*180/A_sum\n")
+    (insert "percent(x)= x*100/A_sum\n")
+
+    (insert "centerX = 0\n")
+    (insert "centerY = 0\n")
+    (insert "radius  = 1\n")
+    (insert "pos     = 0\n")
+    (insert "colour  = 0\n")
+
+    (insert "yposmax = 0.95*radius\n")
+    (insert "xpos    = 1.5*radius\n")
+    (insert "ypos(i) = yposmax - i*(yposmax)/(1.0*A_records)\n")
+
+    (insert "set xrange [-N:2]\n")
+    (insert "set yrange [-N:2]\n")
+    (insert "unset key\n")
+    (insert "unset tics\n")
+    (insert "unset border\n")
+    (insert "plot file using "
+            "(centerX):(centerY):(radius):(pos):(pos=pos+angle($"
+          col ")):(colour=colour+1) "
+          "with circle linecolor var notitle")
+    (if donut
+  (insert "\\\n, '' using "
+          "(centerX):(centerY):(0.5) "
+          "with circle linecolor 'white' notitle"))
+    (insert "\\\n, for [i=" rows "] file using (xpos):(ypos(i)):"
+      (if labelcol fmt1 fmt2)
+      " every ::i::i with labels left offset 3,0")
+    (insert "\\\n, for [i=" rows "] '+' using (xpos):(ypos(i)) "
+      "with points pointtype 5 pointsize 4 linecolor i+1\n")
+  ))
+
+(defun gnuplot--draw-spider (n header labelcol)
+  (let* ((j (if labelcol 1 0))
+   (colfmt (format "%d:%d" j (- n j))))
+    (if (< (- n j) 3) (error "Atleast 3 axes needed"))
+
+    (insert "set spiderplot\n")
+    (insert "set style spiderplot fill transparent solid 0.30 border\n")
+    (insert "set for [i=" colfmt "] paxis i range [0:100]\n")
+    (if (not header)
+  (insert "set for [i=" colfmt "] paxis i label sprintf('%d',i)\n"))
+    (insert "set paxis 1 tics\n")
+    (insert "set grid spider linetype black linewidth 0.2\n")
+
+    (insert "plot for [i="
+      (format "%d:%d" (1+ j) n)
+      "] file using i:key(1)"
+      (if header " title columnhead" "")
+      "\n")
+    ))
+
+(defun gnuplot--draw (&optional title style)
+  (or killed-rectangle (error "No tabular data"))
+  (let* ((name (make-temp-file "plot"))
+         (data killed-rectangle)
+         (comma (and (string-match-p "," (car data)) ","))
+         (pipe  (and (string-match-p "|" (car data)) "|"))
+   (sep   (or comma pipe))
+         (cols (split-string (car data) sep))
+   (m (length data))
+         (n (length cols))
+   (str-check "^ *[a-zA-Z'\"]")
+         buf xlabel ylabel header labelcol datetime)
+    ;; Extract plot details
+    ;; Column header
+    (when (string-match-p str-check (car cols))
+      (if (= n 1)
+          (if (string-match-p str-check (nth 1 data))
+              (error "Bad data")
+            (setq ylabel (car cols)
+                  labelcol nil))
+        (when (string-match-p str-check (nth 1 cols))
+          (setq header cols
+                ;; style "histograms"
+                )
+          (pcase n
+            (1 (setq ylabel (nth 1 header)))
+            (2 (setq xlabel (nth 0 header)
+                     ylabel (nth 1 header)))
+            (_ (setq xlabel (nth 0 header))))
+          ;; (pop killed-rectangle)
+          )))
+    ;; First column might be a label column or datetime
+    (setq labelcol (string-match-p str-check (nth 1 data)))
+    (setq datetime (gnuplot--gen-datefmt (car (split-string (nth 1 data) sep))
+                                         (car (split-string (nth 2 data) sep))))
+
+    (setq buf (find-file-noselect name))
+    (with-current-buffer buf
+      (yank-rectangle)
+      (save-buffer))
+
+    (setq style (or style "line"))
+    ;; (setq style "spider")
+    ;; (setq style (if labelcol "histograms"))
+    ;; (setq style "pie")
+    (with-temp-buffer
+      ;; (insert "unset xdata\n")
+      ;; (insert "unset ydata\n")
+      ;; (insert "unset xrange\n")
+      ;; (insert "unset yrange\n")
+      ;; (insert "unset format xy\n")
+      ;; (insert "unset timefmt\n")
+      ;; First \n is to flush any pending commands
+      (insert "\nreset\n")
+
+      (insert "set datafile separator "
+        (if sep (format "'%s'" sep) "whitespace") "\n")
+      (insert "set style fill solid 0.5\n")
+      (insert "set title  '" (or title  "Title")  "'\n")
+      (insert "file='" name "'\n")
+
+      (pcase style
+  ("pie" (gnuplot--draw-pie m header labelcol datetime 2))
+  ("pie_half" (gnuplot--draw-pie m header labelcol datetime 1))
+  ("donut" (gnuplot--draw-pie m header labelcol datetime 2 t))
+  ("donut_half" (gnuplot--draw-pie m header labelcol datetime 1 t))
+  ("spider" (gnuplot--draw-spider n header labelcol))
+  (_ (gnuplot--draw-line style m n xlabel ylabel labelcol datetime)))
+
+      (newline)
+      (gnuplot-mode)
+      (gnuplot-send-buffer-to-gnuplot))
+
+    ;; Cleanup
+    (kill-buffer buf)
+    ;; (delete-file name)
+    ))
+
+(defun gnuplot--draw-preview ()
+  (let* ((style (get-text-property (point) 'gplot-style))
+    (gnuplot-inline-image-mode 'inline))
+    (when (and (memq last-command '(left-char right-char previous-line next-line))
+        (not (string= gnuplot--style-prev style)))
+      (setq gnuplot--style-prev style)
+      (gnuplot--draw nil style))
+    )
+  )
+
+(defun gnuplot--timer-activate ()
+  (if gnuplot--timer (cancel-timer gnuplot--timer))
+  (setq gnuplot--timer (run-with-idle-timer 1 nil 'gnuplot--draw-preview)))
+
+;; styles lines, points, linespoints, impulses, dots, steps, errorbars (or
+;; yerrorbars), xerrorbars, xyerrorbars, boxes, boxerrorbars, boxxyerrorbars
+;;;###autoload
+(defun gnuplot-rectangle2 (prefix)
+  (interactive "P")
+  (let ((styles gnuplot--styles)
+    title style)
+    (when prefix
+      (setq title (read-string "Title: "))
+      (setq style (cdr (assoc (completing-read "Style: " styles) styles)))
+      )
+    (gnuplot--draw title style)))
+
+;;;###autoload
+(defun gnuplot-preview ()
+  (interactive)
+  (let ((styles gnuplot--styles)
+  (icon (file-exists-p gnuplot--image-dir))
+  (buf (get-buffer-create "*gnuplot options*")))
+    (with-current-buffer buf
+      (view-mode -1)
+      (erase-buffer)
+      (cursor-intangible-mode 1)
+      (add-hook 'post-command-hook 'gnuplot--timer-activate nil t)
+      (dolist (i styles)
+  (insert (propertize (car i)
+    'cursor-intangible t
+    'display (if icon (create-image
+       (format "%s/gplot_%s.png"
+       gnuplot--image-dir (car i))))
+    'gplot-style (cdr i)
+    )
+" "))
+      (view-mode 1))
+
+    (pop-to-buffer buf t t)
+    ))
+
+(provide 'graph)
