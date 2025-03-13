@@ -6,18 +6,44 @@
 ; initialize package.el
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
+(package-initialize)
+
+;; Bootstrap 'use-package'
+(eval-after-load 'gnutls
+  '(add-to-list 'gnutls-trustfiles "/etc/ssl/cert.pem"))
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(eval-when-compile
+  (require 'use-package))
+(require 'bind-key)
+(setq use-package-always-ensure t)
+
+(require 'use-package)
+
+;;; general config
+(setq inhibit-startup-message t)
 ;;; disable scrollbars & menu bar
-(menu-bar-mode 0)
-(tool-bar-mode 0)
-(scroll-bar-mode 0)
+(scroll-bar-mode -1)        ; Disable visible scrollbar
+(tool-bar-mode -1)          ; Disable the toolbar
+(tooltip-mode -1)           ; Disable tooltips
+(set-fringe-mode 10)        ; Give some breathing room
+
+;(menu-bar-mode -1)            ; Disable the menu bar
+
 (show-paren-mode 1)
+
+;; Set up the visible bell
+(setq visible-bell t)
 
 ;;; set major mode to text mode
 ;(setq-default major-mode 'text-mode)
 ; set eval lisp stuff
 (global-set-key (kbd "C-c j") 'eval-print-last-sexp)
 
-(require 'use-package)
+;; Set up the visible bell
+(setq visible-bell t)
 
 ;; rainbow brackets
 (use-package rainbow-delimiters)
@@ -80,6 +106,20 @@
   (setq display-line-numbers 'relative)
   )
 (add-hook 'prog-mode-hook 'my-display-numbers-hook)
+
+;; Disable line numbers for some modes
+(dolist (mode '(org-mode-hook
+                term-mode-hook
+                shell-mode-hook
+                treemacs-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+(use-package command-log-mode)
+
+(require 'command-log-mode)
+(use-package command-log-mode)
+(add-hook 'LaTeX-mode-hook 'command-log-mode)
 
 ;;; magit
 (use-package magit :ensure)
