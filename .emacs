@@ -196,6 +196,38 @@
 (require 'clang-format)
 (global-set-key [C-M-tab] 'clang-format-region)
 
+;; rmsbolt
+
+(use-package rmsbolt ;;compiler explorer in emacs
+  :ensure t
+  ;; rmsbolt changes keybinding C-c C-c, which is bonded to comment code.
+  ;; :bind (:map rmsbolt-mode-map ("C-c C-c" . rmsbolt-compile))
+  :hook
+  ;;rmsbolt does not support tree-sitter. We have to manually set it, coping from
+  ;;rmsbolt.el
+  (rmsbolt-mode . (lambda ()
+                    (cond ((eq major-mode 'c-mode)
+                           (setq rmsbolt-language-descriptor
+                                 (make-rmsbolt-lang :compile-cmd "gcc"
+                                                    :supports-asm t
+                                                    :supports-disass t
+                                                    :demangler "c++filt"
+                                                    :compile-cmd-function #'rmsbolt--c-compile-cmd
+                                                    :disass-hidden-funcs
+                                                    rmsbolt--hidden-func-c)))
+                          ((eq major-mode 'c++-mode)
+                           (setq rmsbolt-language-descriptor
+                                 (make-rmsbolt-lang :compile-cmd "g++"
+                                                    :supports-asm t
+                                                    :supports-disass t
+                                                    :demangler "c++filt"
+                                                    :compile-cmd-function #'rmsbolt--c-compile-cmd
+                                                    :disass-hidden-funcs rmsbolt--hidden-func-c)))
+                          ) ;;cond
+                    ;;TODO adding GLSL/HLSL languages?
+                    )) ;;rmsbolt-mode-hook
+  )
+
 ;;; project managment
 (use-package projectile :ensure)
 (require 'projectile)
