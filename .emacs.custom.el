@@ -11,7 +11,7 @@
  '(flycheck-googlelint-verbose "3")
  '(inhibit-startup-screen t)
  '(package-selected-packages
-   '(paredit ido-completing-read+ multiple-cursors smex pyenv-mode rect rect+ gnuplot-mode gnuplot faustine faust-mode hi2 cmake-ide agda-editor-tactics py-snippets yasnippet-classic-snippets zenburn-theme underwater-theme melancholy-theme magit ccls flycheck-rtags company-rtags cmake-mode company-c-headers sr-speedbar dap-mode toml-mode rust-playground rustic eglot cargo cargo-mode flycheck-rust rust-mode js2-mode ecb projectile web-mode elpy flycheck-clang-tidy clang-format which-key ggtags bash-completion yasnippet-snippets flycheck-irony irony haskell-mode auto-complete-c-headers ac-c-headers license-snippets haskell-snippets rainbow-delimiters use-package flymake-cursor smartparens google-c-style flycheck-google-cpplint flymake iedit astyle)))
+   '(command-log-mode paredit ido-completing-read+ multiple-cursors smex pyenv-mode rect rect+ gnuplot-mode gnuplot faustine faust-mode hi2 cmake-ide agda-editor-tactics py-snippets yasnippet-classic-snippets zenburn-theme underwater-theme melancholy-theme magit ccls flycheck-rtags company-rtags cmake-mode company-c-headers sr-speedbar dap-mode toml-mode rust-playground rustic eglot cargo cargo-mode flycheck-rust rust-mode js2-mode ecb projectile web-mode elpy flycheck-clang-tidy clang-format which-key ggtags bash-completion yasnippet-snippets flycheck-irony irony haskell-mode auto-complete-c-headers ac-c-headers license-snippets haskell-snippets rainbow-delimiters use-package flymake-cursor smartparens google-c-style flycheck-google-cpplint flymake iedit astyle)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
