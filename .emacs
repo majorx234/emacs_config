@@ -474,10 +474,10 @@
 ;;cmake
 ;;cmake,make support (highlighting)
 ;; Add this code to your .emacs file to use the mode:
-(require 'cmake-mode)
 (use-package cmake-mode
   :ensure
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
+(require 'cmake-mode)
 (use-package cmake-font-lock
   :ensure
   :after (cmake-mode)
