@@ -524,17 +524,14 @@
               (flycheck-mode))))
 (require 'haskell-mode)
 
-;;; Rust stuff
-(with-eval-after-load 'rust-mode
-  ; remove rust-mode from the list of file extension mappings
-  (setq auto-mode-alist (rassq-delete-all 'rust-mode auto-mode-alist))
-  )
-(add-hook 'rust-mode-hook
-          (lambda () (error "Don't use rust-mode, use rustic")
-      ))
+(use-package rust-mode
+  :ensure t
+  :init
+  (setq rust-mode-treesitter-derive t))
 
 (use-package rustic
-  :ensure
+  :ensure t
+  :after (rust-mode)
   :bind (:map rustic-mode-map
               ("M-j" . lsp-ui-imenu)
               ("M-?" . lsp-find-references)
