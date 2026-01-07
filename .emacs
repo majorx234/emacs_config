@@ -158,6 +158,20 @@
 (global-set-key (kbd "C-c m l") 'magit-log)
 (add-hook 'magit-mode-hook (lambda () (company-mode -1)))
 
+;;; dired
+(require 'dired-x)
+(setq dired-omit-files
+      (concat dired-omit-files "\\|^\\..+$"))
+(setq-default dired-dwim-target t)
+(setq dired-listing-switches "-alh")
+(setq dired-mouse-drag-files t)
+
+;;; Move Text
+( use-package move-text :ensure)
+(require 'move-text)
+(global-set-key (kbd "M-<up>") 'move-text-up)
+(global-set-key (kbd "M-<down>") 'move-text-down)
+
 ;;; programming part
 ;;; shortkeys:
 (global-set-key (kbd "C-c c")        'comment-region)
