@@ -111,6 +111,14 @@
 (global-set-key [(meta shift up)]  'move-line-up)
 (global-set-key [(meta shift down)]  'move-line-down)
 
+(use-package tree-mode :ensure t)
+(require 'tree-mode)
+(use-package windata :ensure t)
+(require 'windata)
+(use-package dirtree :ensure t)
+(require 'dirtree)
+(autoload 'dirtree "dirtree" "Add directory to tree view" t)
+(global-set-key "\C-c d" 'dirtree-show)
 
 ;;;hexview: (not working)
 ; (require 'hexview-mode)
