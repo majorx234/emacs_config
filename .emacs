@@ -296,7 +296,6 @@
 ;;; project managment
 (use-package projectile :ensure)
 (require 'projectile)
-(projectile-global-mode)
 
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
@@ -687,13 +686,17 @@
 ;(require 'flex-autopair)
 ;(flex-autopair-mode 1)
 
+(require 'ido)
+(ido-mode 1)
+(ido-everywhere 1)
+
 ;;; flx-ido
 (use-package flx-ido :ensure)
 (require 'flx-ido)
 (use-package ido-completing-read+ :ensure)
-(ido-mode 1)
-(ido-everywhere 1)
-;(ido-ubiquitous-mode 1)
+(require 'ido-completing-read+)
+;(ido-cr+-mode 1)
+
 (flx-ido-mode 1)
 
 ;; disable ido faces to see flx highlights.
