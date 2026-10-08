@@ -22,6 +22,12 @@
 
 (require 'use-package)
 
+;;; helper function
+(defun mywindowsystem ()
+  "Nonce function"
+  (interactive)
+  (message "windo-system: %S" window-system))
+
 ;;; general config
 (setq inhibit-startup-message t)
 ;;; disable scrollbars & menu bar
@@ -53,9 +59,22 @@
 ;; auto close bracket insertion. New in emacs 24
 (electric-pair-mode 1)
 
-(if window-system
-    (faces_x)
-    (faces_nox))
+(if (daemonp)
+    (add-hook 'after-make-frame-functions
+              (lambda (frame)
+                ;; run set faces function
+                (with-selected-frame frame
+                  (faces_all))))
+  (faces_all)
+  )
+
+;;(faces_all)
+
+;;(if window-system
+;;    (faces_x)
+;;  (faces_nox)
+;; )
+
 
 ;; Make the mouse wheel scroll Emacs
 (mouse-wheel-mode t)
@@ -496,10 +515,10 @@
 ;;cmake
 ;;cmake,make support (highlighting)
 ;; Add this code to your .emacs file to use the mode:
+(require 'cmake-mode)
 (use-package cmake-mode
   :ensure
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
-(require 'cmake-mode)
 (use-package cmake-font-lock
   :ensure
   :after (cmake-mode)
@@ -518,7 +537,7 @@
     (with-eval-after-load 'projectile
       (setq cmake-ide-project-dir (projectile-project-root))
       (setq cmake-ide-build-dir (concat cmake-ide-project-dir "build")))
-    (setq cmake-ide-compile-command 
+    (setq cmake-ide-compile-command
             (concat "cd " cmake-ide-build-dir " && cmake .. && make"))
     (cmake-ide-load-db))
 
@@ -674,7 +693,7 @@
 (use-package ido-completing-read+ :ensure)
 (ido-mode 1)
 (ido-everywhere 1)
-(ido-ubiquitous-mode 1)
+;(ido-ubiquitous-mode 1)
 (flx-ido-mode 1)
 
 ;; disable ido faces to see flx highlights.
